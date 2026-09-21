@@ -1,0 +1,38 @@
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary-600);
+  border-radius: var(--radius-full);
+  animation: spin 700ms linear infinite;
+}
+.lg {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+.wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.fullPage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: var(--color-bg);
+}
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

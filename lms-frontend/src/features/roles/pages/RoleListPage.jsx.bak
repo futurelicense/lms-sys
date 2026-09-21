@@ -1,0 +1,420 @@
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Search,
+  ShieldCheck,
+  Plus,
+  Pencil,
+  Trash2,
+  Copy,
+  Eye,
+  ChevronDown,
+  MoreVertical,
+  KeyRound,
+} from 'lucide-react';
+import AdminButton from '../../../components/ui/AdminButton';
+import AdminInput from '../../../components/ui/AdminInput';
+import { AdminModal, AdminConfirmModal } from '../../../components/ui/AdminModal';
+import { AdminCardSkeleton } from '../../../components/ui/AdminSkeleton';
+import { AdminErrorState } from '../../../components/ui/AdminPagination';
+import PermissionGuard from '../../../guards/PermissionGuard';
+import { PERMISSIONS } from '../../../constants/permissions';
+import roleService from '../services/roleService';
+import userService from '../../users/services/userService';
+import { useToast } from '../../../components/feedback/Toast';
+
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+}
+
+const ROLE_COLORS = [
+  { bg: 'bg-brand-50',   text: 'text-brand-600',   ring: 'ring-brand-100' },
+  { bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-100' },
+  { bg: 'bg-amber-50',   text: 'text-amber-600',   ring: 'ring-amber-100' },
+  { bg: 'bg-sky-50',     text: 'text-sky-600',     ring: 'ring-sky-100' },
+  { bg: 'bg-rose-50',    text: 'text-rose-600',    ring: 'ring-rose-100' },
+  { bg: 'bg-violet-50',  text: 'text-violet-600',  ring: 'ring-violet-100' },
+];
+
+function roleColor(name = '') {
+  const hash = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return ROLE_COLORS[hash % ROLE_COLORS.length];
+}
+
+export const RoleListPage = () => {
+  const { success: toastSuccess, error: toastError } = useToast();
+
+  // List state
+  const [roles, setRoles] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+
+  // Create / Edit modal
+  const [editRole, setEditRole] = useState(null); // null = create
+  const [modalOpen, setModalOpen] = useState(false);
+  const [roleName, setRoleName] = useState('');
+  const [roleDescription, setRoleDescription] = useState('');
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [permSearch, setPermSearch] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [modalError, setModalError] = useState('');
+
+  // Delete
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  /* ─── data fetching ─── */
+
+  const loadRoles = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const [rolesRes, permsRes] = await Promise.all([
+        roleService.list({ search: search || undefined }),
+        roleService.listPermissions(),
+      ]);
+      const roleList = Array.isArray(rolesRes?.items) ? rolesRes.items
+        : Array.isArray(rolesRes?.content) ? rolesRes.content
+        : Array.isArray(rolesRes) ? rolesRes : [];
+      const permList = Array.isArray(permsRes?.items) ? permsRes.items
+        : Array.isArray(permsRes?.content) ? permsRes.content
+        : Array.isArray(permsRes) ? permsRes : [];
+      setRoles(roleList);
+      setAllPermissions(permList);
+    } catch (err) {
+      setLoadError(err?.message ?? 'Failed to load roles.');
+    } finally {
+      setLoading(false);
+    }
+  }, [search]);
+
+  useEffect(() => { loadRoles(); }, [loadRoles]);
+
+  const handleSearch = () => setSearch(searchInput);
+  const handleKeyDown = (e) => { if (e.key === 'Enter') handleSearch(); };
+
+  /* ─── create / edit ─── */
+
+  const openCreate = () => {
+    setEditRole(null);
+    setRoleName('');
+    setRoleDescription('');
+    setSelectedPermissions([]);
+    setPermSearch('');
+    setModalError('');
+    setModalOpen(true);
+  };
+
+  const openEdit = (role) => {
+    setEditRole(role);
+    setRoleName(role.name ?? '');
+    setRoleDescription(role.description ?? '');
+    setSelectedPermissions((role.permissions ?? []).map((p) => p.id));
+    setPermSearch('');
+    setModalError('');
+    setModalOpen(true);
+  };
+
+  const togglePermission = (permId) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permId) ? prev.filter((id) => id !== permId) : [...prev, permId]
+    );
+  };
+
+  const handleSave = async () => {
+    setModalError('');
+    if (!roleName.trim()) { setModalError('Role name is required.'); return; }
+
+    setSaving(true);
+    try {
+      const payload = {
+        name: roleName.trim(),
+        description: roleDescription.trim(),
+        permissionIds: selectedPermissions,
+      };
+      if (editRole) {
+        await roleService.update(editRole.id, payload);
+        toastSuccess(`Role "${roleName}" has been updated.`);
+      } else {
+        await roleService.create(payload);
+        toastSuccess(`Role "${roleName}" has been created.`);
+      }
+      setModalOpen(false);
+      loadRoles();
+    } catch (err) {
+      setModalError(err?.message ?? 'Failed to save role.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ─── delete ─── */
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await roleService.delete(deleteTarget.id);
+      toastSuccess(`Role "${deleteTarget.name}" has been deleted.`);
+      setDeleteTarget(null);
+      loadRoles();
+    } catch (err) {
+      toastError(err?.message ?? 'Failed to delete role.');
+      setDeleting(false);
+    }
+  };
+
+  /* ─── filtered permissions in modal ─── */
+  const filteredPermissions = permSearch
+    ? allPermissions.filter((p) =>
+        p.name?.toLowerCase().includes(permSearch.toLowerCase()) ||
+        p.authority?.toLowerCase().includes(permSearch.toLowerCase())
+      )
+    : allPermissions;
+
+  const filteredRoles = search
+    ? roles.filter((r) =>
+        r.name?.toLowerCase().includes(search.toLowerCase()) ||
+        r.description?.toLowerCase().includes(search.toLowerCase())
+      )
+    : roles;
+
+  return (
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Roles</h1>
+          <p className="mt-1 text-slate-500">Define what each role can do within the platform.</p>
+        </div>
+        <PermissionGuard required={[PERMISSIONS.ROLE_WRITE]} fallback={null}>
+          <AdminButton icon={<Plus className="h-4 w-4" />} onClick={openCreate}>
+            Create Role
+          </AdminButton>
+        </PermissionGuard>
+      </div>
+
+      {/* Search */}
+      <div className="card-base p-4">
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <AdminInput
+              placeholder="Search roles by name or description…"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              icon={<Search className="h-4 w-4" />}
+            />
+          </div>
+          <AdminButton size="sm" onClick={handleSearch}>Search</AdminButton>
+        </div>
+      </div>
+
+      {/* Role cards */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => <AdminCardSkeleton key={i} />)}
+        </div>
+      ) : loadError ? (
+        <AdminErrorState message={loadError} onRetry={loadRoles} />
+      ) : filteredRoles.length === 0 ? (
+        <AdminEmptyState
+          icon={<ShieldCheck className="h-7 w-7" />}
+          title="No roles found"
+          message={search ? 'Try adjusting your search.' : 'Create roles to define access levels for your users.'}
+          action={
+            <PermissionGuard required={[PERMISSIONS.ROLE_WRITE]} fallback={null}>
+              <AdminButton icon={<Plus className="h-4 w-4" />} onClick={openCreate}>Create Role</AdminButton>
+            </PermissionGuard>
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredRoles.map((role) => {
+            const c = roleColor(role.name ?? '');
+            return (
+              <div
+                key={role.id}
+                className="card-base p-5 flex flex-col transition-all duration-300 hover:shadow-soft hover:-translate-y-0.5 animate-slide-up"
+              >
+                {/* Card header */}
+                <div className="flex items-start justify-between">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${c.bg} ${c.text} ring-4 ${c.ring}`}>
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <PermissionGuard required={[PERMISSIONS.ROLE_WRITE]} fallback={null}>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openEdit(role)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                        title="Edit role"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(role)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        title="Delete role"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </PermissionGuard>
+                </div>
+
+                {/* Name & description */}
+                <h3 className="mt-3 text-sm font-bold text-slate-900">{role.name}</h3>
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed flex-1">
+                  {role.description || 'No description.'}
+                </p>
+
+                {/* Meta */}
+                <div className="mt-4 pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-4 text-xs text-slate-400 mb-2">
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      {role.userCount ?? 0} users
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {formatDate(role.createdAt)}
+                    </span>
+                  </div>
+                  {/* Permission badges (first 4 + overflow) */}
+                  {(role.permissions ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {role.permissions.slice(0, 4).map((p) => (
+                        <AdminBadge key={p.id} variant="neutral" className="font-mono text-[10px]">
+                          {p.authority ?? p.name}
+                        </AdminBadge>
+                      ))}
+                      {role.permissions.length > 4 && (
+                        <AdminBadge variant="neutral" className="text-[10px]">
+                          +{role.permissions.length - 4} more
+                        </AdminBadge>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Create / Edit Role Modal ── */}
+      {modalOpen && (
+        <AdminModal
+          open
+          onClose={() => setModalOpen(false)}
+          title={editRole ? 'Edit Role' : 'Create Role'}
+          description={editRole ? `Editing "${editRole.name}"` : 'Define a new access level'}
+          size="lg"
+          footer={
+            <>
+              <AdminButton variant="outline" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</AdminButton>
+              <AdminButton onClick={handleSave} loading={saving}>
+                {editRole ? 'Save changes' : 'Create role'}
+              </AdminButton>
+            </>
+          }
+        >
+          {modalError && (
+            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+              <p className="text-sm font-medium text-red-700">{modalError}</p>
+            </div>
+          )}
+          <div className="space-y-5">
+            <AdminInput
+              label="Role name"
+              value={roleName}
+              onChange={(e) => setRoleName(e.target.value)}
+              placeholder="e.g. Content Manager"
+              icon={<ShieldCheck className="h-4 w-4" />}
+              autoFocus
+            />
+            <div>
+              <label className="label-base">Description</label>
+              <textarea
+                value={roleDescription}
+                onChange={(e) => setRoleDescription(e.target.value)}
+                placeholder="What access does this role grant?"
+                rows={2}
+                className="input-base resize-none"
+              />
+            </div>
+            {/* Permissions checklist */}
+            <div>
+              <label className="label-base flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-slate-400" />
+                Permissions ({selectedPermissions.length} selected)
+              </label>
+              <div className="mt-1.5 mb-3">
+                <AdminInput
+                  placeholder="Search permissions…"
+                  value={permSearch}
+                  onChange={(e) => setPermSearch(e.target.value)}
+                  icon={<Search className="h-4 w-4" />}
+                />
+              </div>
+              <div className="max-h-64 overflow-y-auto space-y-1.5 rounded-xl border border-slate-200 p-3">
+                {filteredPermissions.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-slate-400">No permissions match your search.</p>
+                ) : (
+                  filteredPermissions.map((perm) => {
+                    const selected = selectedPermissions.includes(perm.id);
+                    return (
+                      <button
+                        key={perm.id}
+                        type="button"
+                        onClick={() => togglePermission(perm.id)}
+                        className={`flex w-full items-center gap-3 rounded-lg p-2.5 text-left transition-colors ${
+                          selected ? 'bg-brand-50' : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+                          selected ? 'border-brand-600 bg-brand-600' : 'border-slate-300'
+                        }`}>
+                          {selected && (
+                            <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900">{perm.name}</p>
+                          <p className="text-xs font-mono text-slate-500 truncate">{perm.authority}</p>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        </AdminModal>
+      )}
+
+      {/* ── Delete Role Confirm ── */}
+      {deleteTarget && (
+        <AdminConfirmModal
+          open
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          title="Delete Role"
+          message={`Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone and may affect users who have this role.`}
+          confirmLabel="Delete"
+          variant="danger"
+          loading={deleting}
+        />
+      )}
+    </div>
+  );
+};
+
+export default RoleListPage;

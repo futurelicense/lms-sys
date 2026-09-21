@@ -1,0 +1,47 @@
+.container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.table th,
+.table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.table thead th {
+  background: var(--color-surface-alt);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.clickable tbody tr {
+  cursor: pointer;
+}
+.clickable tbody tr:hover {
+  background: var(--color-surface-alt);
+}
+.sortable {
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+.stateCell {
+  padding: 0 !important;
+}

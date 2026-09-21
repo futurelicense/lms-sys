@@ -1,0 +1,152 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.personalInfoSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.formDivider {
+  height: 1px;
+  background: var(--border-color, #222222);
+  margin: var(--space-1) 0;
+  opacity: 0.7;
+}
+
+.fieldsStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rowTwoCols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.rowThreeCols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .rowThreeCols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rowThreeCols > *:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .rowTwoCols,
+  .rowThreeCols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .rowThreeCols > *:last-child:nth-child(odd) {
+    grid-column: span 1;
+  }
+}
+
+/*
+ * Four columns on desktop, matching the intake form layout; collapses to two
+ * on tablet and one on phones so no field ever gets squeezed below readable.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Address needs the room; it spans two columns wherever there are two. */
+.span2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  .span2 {
+    grid-column: span 1;
+  }
+}
+
+.subheading {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.radioRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-1);
+}
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.divider {
+  height: 1px;
+  margin: var(--space-3) 0;
+  background: var(--color-border);
+  border: 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* One enrolment row: batch, status, and a remove button aligned to the controls. */
+.enrolmentRow {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+
+.enrolmentRow + .enrolmentRow {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .enrolmentRow {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+
+.removeEnrolment {
+  white-space: nowrap;
+}

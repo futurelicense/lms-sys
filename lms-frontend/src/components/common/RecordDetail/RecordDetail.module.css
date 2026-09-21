@@ -1,0 +1,145 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Identity panel on the left, personal info on the right; stacks on tablet. */
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-4);
+  text-align: center;
+  border-right: 1px solid var(--color-border);
+}
+
+@media (max-width: 900px) {
+  .identity {
+    padding-right: 0;
+    padding-bottom: var(--space-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+.avatar {
+  width: 132px;
+  height: 132px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+}
+
+/* Initials stand in when no photo was uploaded. */
+.avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.name {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.regNo {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.regNo strong {
+  color: var(--color-primary-700, var(--color-text));
+}
+
+.identityActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* Two-column definition list: label, then value. */
+.facts {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.facts dt {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Side-by-side cards that collapse to one column on narrow screens. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.contactRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .contactRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.contactName {
+  font-weight: 600;
+}
+
+.contactMeta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.fieldLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.empty {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

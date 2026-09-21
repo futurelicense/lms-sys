@@ -1,0 +1,335 @@
+/* Microsoft Teams Style Notification Toasts */
+
+.teams-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100vw - 32px);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+.teams-toast-card {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  background: #1b1b1f;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: teamsSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.teams-toast-card:hover {
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.teams-toast-card--dismissing {
+  animation: teamsSlideOut 0.22s ease-in forwards;
+}
+
+/* Subtle top accent bar matching Teams purple */
+.teams-toast-card__top-bar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #5b5fc7, #7c81ee);
+}
+
+/* Header with Teams Logo / Category & Close Button */
+.teams-toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.teams-toast-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.teams-toast-header__icon-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #5b5fc7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.teams-toast-header__title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #a5b4fc;
+  letter-spacing: 0.2px;
+}
+
+.teams-toast-header__dot {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.teams-toast-header__time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.teams-toast-header__close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.teams-toast-header__close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Card Body */
+.teams-toast-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+/* Avatar with Online Presence Dot */
+.teams-toast-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.teams-toast-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.5px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.teams-toast-presence {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #23a55a;
+  border: 2px solid #1b1b1f;
+  box-shadow: 0 0 4px rgba(35, 165, 90, 0.6);
+}
+
+/* Message Text Info */
+.teams-toast-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.teams-toast-sender-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.teams-toast-sender-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teams-toast-channel-context {
+  font-size: 11.5px;
+  color: #818cf8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teams-toast-message-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #d1d5db;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Quick Actions Footer */
+.teams-toast-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.teams-toast-action-btn {
+  background: #29292e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.teams-toast-action-btn:hover {
+  background: #38383e;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.teams-toast-action-btn--primary {
+  background: #5b5fc7;
+  border-color: #5b5fc7;
+  color: #ffffff;
+}
+
+.teams-toast-action-btn--primary:hover {
+  background: #4f53b5;
+  border-color: #4f53b5;
+}
+
+/* Inline Quick Reply Form (Teams Signature) */
+.teams-toast-reply-box {
+  padding: 0 12px 12px;
+  animation: teamsFadeIn 0.15s ease-out;
+}
+
+.teams-toast-reply-form {
+  display: flex;
+  align-items: center;
+  background: #141417;
+  border: 1px solid #3e3f46;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.teams-toast-reply-form:focus-within {
+  border-color: #5b5fc7;
+  box-shadow: 0 0 0 1px #5b5fc7;
+}
+
+.teams-toast-reply-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 12.5px;
+  padding: 7px 10px;
+  outline: none;
+}
+
+.teams-toast-reply-input::placeholder {
+  color: #71717a;
+}
+
+.teams-toast-reply-send-btn {
+  background: transparent;
+  border: none;
+  color: #5b5fc7;
+  cursor: pointer;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.teams-toast-reply-send-btn:hover:not(:disabled) {
+  color: #818cf8;
+  transform: scale(1.08);
+}
+
+.teams-toast-reply-send-btn:disabled {
+  color: #4b5563;
+  cursor: default;
+}
+
+.teams-toast-reply-sent {
+  font-size: 11.5px;
+  color: #22c55e;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+}
+
+/* Animations */
+@keyframes teamsSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes teamsSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+}
+
+@keyframes teamsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

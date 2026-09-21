@@ -1,0 +1,3 @@
+# The LMS is an authenticated application - keep it out of search indexes.
+User-agent: *
+Disallow: /

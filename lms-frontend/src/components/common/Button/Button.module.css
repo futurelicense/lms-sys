@@ -1,0 +1,96 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+  white-space: nowrap;
+}
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+}
+.md {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+}
+.lg {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-lg);
+}
+
+.primary {
+  background: var(--color-primary-600);
+  color: #ffffff;
+  border: 1px solid var(--color-primary-700);
+  font-weight: 600;
+}
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+}
+
+[data-theme='dark'] .primary,
+html.dark .primary {
+  background: var(--color-primary-500);
+  color: #ffffff;
+  border-color: var(--color-primary-600);
+}
+[data-theme='dark'] .primary:hover:not(:disabled),
+html.dark .primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
+  border-color: var(--color-primary-700);
+}
+
+.secondary {
+  background: #f4f4f5;
+  color: #111111;
+  border: 1px solid #d4d4d8;
+}
+.secondary:hover:not(:disabled) {
+  background: #e4e4e7;
+  border-color: #a1a1aa;
+}
+
+[data-theme='dark'] .secondary,
+html.dark .secondary {
+  background: #2a2a2a;
+  color: #e4e4e7;
+  border: 1px solid #444444;
+}
+[data-theme='dark'] .secondary:hover:not(:disabled),
+html.dark .secondary:hover:not(:disabled) {
+  background: #3a3a3a;
+  border-color: #555555;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-text);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+}
+
+.danger {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+.danger:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.fullWidth {
+  width: 100%;
+}
