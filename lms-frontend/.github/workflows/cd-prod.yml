@@ -71,6 +71,7 @@ jobs:
             VITE_APP_NAME=${{ vars.VITE_APP_NAME }}
             VITE_APP_ENV=production
             VITE_ENABLE_ANALYTICS=true
+            VITE_ENABLE_DEMO_LOGIN=true
             VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

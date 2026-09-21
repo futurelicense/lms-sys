@@ -22,6 +22,8 @@ export const environment = Object.freeze({
   appEnv: raw.VITE_APP_ENV ?? raw.MODE,
   sentryDsn: raw.VITE_SENTRY_DSN ?? '',
   enableAnalytics: raw.VITE_ENABLE_ANALYTICS === 'true',
+  // Offline demo personas on the login page. Defaults on; set to "false" to hide.
+  enableDemoLogin: raw.VITE_ENABLE_DEMO_LOGIN !== 'false',
   isProduction: raw.PROD,
   isDevelopment: raw.DEV,
 });

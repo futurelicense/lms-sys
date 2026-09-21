@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { SignInPage } from '../../../components/ui/sign-in';
 import { ROUTES } from '../../../constants/routes';
 import { getDefaultRouteForRoles } from '../../../constants/roles';
+import environment from '../../../config/environment';
 import { isPlatformHostname, tenantSlugFromHostname } from '../../../utils/tenantHostname';
 import useLogin from '../hooks/useLogin';
 import { loginDemo } from '../store/authSlice';
@@ -29,7 +30,7 @@ export const LoginPage = () => {
   const dispatch = useDispatch();
   const tenantSlug = tenantSlugFromHostname();
   const platformLogin = isPlatformHostname();
-  const showDemoLogin = import.meta.env.DEV && !platformLogin;
+  const showDemoLogin = environment.enableDemoLogin && !platformLogin;
 
   const handleSignIn = async (event) => {
     event.preventDefault();
